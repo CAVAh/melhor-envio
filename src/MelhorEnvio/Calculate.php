@@ -3,55 +3,9 @@
 
 	use Exception;
 
-	class MelhorEnvio {
-		private const URL_AUTH = 'https://www.melhorenvio.com.br/api/v2/me';
+	class Calculate extends Auth {
 		private const URL_CALCULATE = 'https://www.melhorenvio.com.br/api/v2/me/shipment/calculate';
-		private static $api_token;
-		private static $autenticado = false;
 		private static $result;
-
-		public static function init($api_token) {
-			self::$api_token = $api_token;
-		}
-
-		private static function http_header() {
-			return ['content-type: application/json',
-			        'cache-control: no-cache',
-			        'accept: application/json',
-			        'authorization: ' . self::$api_token];
-		}
-
-		/**
-		 * Realiza a autenticação no servidor da Melhor Envio
-		 *
-		 * @return mixed
-		 * @throws Exception
-		 */
-		private static function autenticar() {
-			$ch = curl_init();
-
-			curl_setopt($ch, CURLOPT_URL, self::URL_AUTH);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-			curl_setopt($ch, CURLOPT_ENCODING, '');
-			curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-			curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, self::http_header());
-
-			$result = json_decode(curl_exec($ch), true);
-			$err = curl_error($ch);
-			curl_close($ch);
-
-			if ($err || isset($result['message']) && $result['message'] === 'Unauthenticated.') {
-				self::$autenticado = false;
-
-				throw new Exception(['name' => 'ERROR em autenticação Melhor Envio', 'error' => $err . json_encode($result), 'vars' => get_defined_vars()]);
-			} else {
-				self::$autenticado = true;
-
-				return $result;
-			}
-		}
 
 		/**
 		 * @param From         $from     Endereço do Remetente
@@ -65,16 +19,8 @@
 		 * @throws Exception
 		 */
 		public static function calcularFrete($from, $to, $products, $package = null, $options = null) {
-			if (empty(self::$api_token)) {
-				throw new Exception('API_TOKEN deve ser informada... chamar função init($api_token)');
-			}
-
-			if (strpos(self::$api_token, 'Bearer ') !== 0) {
-				throw new Exception('API_TOKEN deve iniciar com "Bearer "');
-			}
-
-			if (!self::$autenticado) {
-				self::autenticar();
+			if (!parent::$auth) {
+				parent::auth();
 			}
 
 			if (is_null($options)) {
