@@ -1,0 +1,22 @@
+{
+    "name": "CAVAh/melhor-envio",
+    "description": "Integracao com a Melhor Envio",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Lucas Cava",
+            "email": "lucas.cava@hotmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.1.0",
+        "ext-json": "^1.7",
+        "ext-curl": "^7.3"
+    },
+	"autoload": {
+        "psr-0": {
+            "MelhorEnvio": "src/"
+        }
+    }
+}
