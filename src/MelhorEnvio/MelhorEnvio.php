@@ -3,7 +3,7 @@
 
 	use Exception;
 
-	class WebService {
+	class MelhorEnvio {
 		private const URL_AUTH = 'https://www.melhorenvio.com.br/api/v2/me';
 		private const URL_CALCULATE = 'https://www.melhorenvio.com.br/api/v2/me/shipment/calculate';
 		private static $api_token;
@@ -119,7 +119,7 @@
 			curl_close($ch);
 
 			if ($err) {
-				throw new Exception(['name' => 'Error WebService Melhor Envio', 'error' => $err, 'result' => $result, 'vars' => get_defined_vars()]);
+				throw new Exception(['name' => 'Error cURL Melhor Envio', 'error' => $err, 'result' => $result, 'vars' => get_defined_vars()]);
 			} else {
 				$rJson = json_decode($result, true);
 				$count = count($rJson);
@@ -137,7 +137,7 @@
 				}
 
 				if(empty($rJson)) {
-					throw new Exception(['name' => 'Error WebService Melhor Envio', 'error' => $err, 'result' => $result, 'vars' => get_defined_vars()]);
+					throw new Exception(['name' => 'Error JSON Melhor Envio', 'error' => $err, 'result' => $result, 'vars' => get_defined_vars()]);
 				}
 
 				self::$result = $rJson;
@@ -148,5 +148,24 @@
 
 		public static function getResult() {
 			return self::$result;
+		}
+		
+		public static function getSimpleResult() {
+			$result = self::getResult();
+			$simple_result = [];
+
+			foreach ($result as $item) {
+				$simple_result[] = [
+					'company' => $item['company']['name'] . ' ' . $item['name'],
+					'price' => $item['price'],
+					'currency' => $item['currency'],
+					'delivery' => [
+						'min' => $item['delivery_range']['min'],
+						'max' => $item['delivery_range']['max']
+					]
+				];
+			}
+
+			return $simple_result;
 		}
 	}
