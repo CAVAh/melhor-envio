@@ -1,8 +1,6 @@
 <?php
 	namespace MelhorEnvio;
 
-	use Exception;
-
 	class Calculate extends Auth {
 		private const URL_CALCULATE = 'https://www.melhorenvio.com.br/api/v2/me/shipment/calculate';
 		private static $result;
@@ -16,11 +14,11 @@
 		 *
 		 * @return bool|mixed
 		 *
-		 * @throws Exception
+		 * @throws MelhorEnvioException
 		 */
 		public static function calcularFrete($from, $to, $products, $package = null, $options = null) {
 			if (!parent::$auth) {
-				parent::auth();
+				parent::authenticate();
 			}
 
 			if (is_null($options)) {
@@ -35,8 +33,8 @@
 
 			if (!is_null($products)) {
 				foreach ($products as $product) {
-					$product->convertWeightInKG();
-					$product->convertLengthInCM();
+					Util::convertProductWeightInKG($product);
+					Util::convertProductLengthInCM($product);
 					$oJson['products'][] = array_filter($product->__toArray());
 				}
 			}
@@ -48,48 +46,29 @@
 			}
 
 			$json = json_encode($oJson);
-			$ch = curl_init();
-
-			curl_setopt($ch, CURLOPT_URL, self::URL_CALCULATE);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-			curl_setopt($ch, CURLOPT_ENCODING, '');
-			curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-			curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, self::http_header());
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-
-			$result = curl_exec($ch);
-			$err = curl_error($ch);
-
-			curl_close($ch);
+			list($result, $err) = Util::curl(self::URL_CALCULATE, 'POST', $json);
 
 			if ($err) {
-				throw new Exception(['name' => 'Error cURL Melhor Envio', 'error' => $err, 'result' => $result, 'vars' => get_defined_vars()]);
-			} else {
-				$rJson = json_decode($result, true);
-				$count = count($rJson);
-				$companies = $options->getCompanies();
-				$filter_company = !is_null($companies);
-
-				for ($i = 0; $i < $count; $i++) {
-					if (isset($rJson[$i]['error'])) {
-						unset($rJson[$i]);
-					} elseif ($filter_company) {
-						if (!in_array($rJson[$i]['company']['id'], $options->getCompanies())) {
-							unset($rJson[$i]);
-						}
-					}
-				}
-
-				if(empty($rJson)) {
-					throw new Exception(['name' => 'Error JSON Melhor Envio', 'error' => $err, 'result' => $result, 'vars' => get_defined_vars()]);
-				}
-
-				self::$result = $rJson;
-
-				return $rJson;
+				throw new MelhorEnvioException(['name' => 'Error cURL Melhor Envio', 'error' => $err, 'result' => $result, 'vars' => get_defined_vars()]);
 			}
+
+			$count = count($result);
+			$companies = $options->getCompanies();
+			$filter_company = !is_null($companies);
+
+			for ($i = 0; $i < $count; $i++) {
+				if (isset($result[$i]['error']) || $filter_company && !in_array($result[$i]['company']['id'], $options->getCompanies())) {
+					unset($result[$i]);
+				}
+			}
+
+			if(empty($result)) {
+				throw new MelhorEnvioException(['name' => 'Error JSON Melhor Envio', 'error' => $err, 'result' => $result, 'vars' => get_defined_vars()]);
+			}
+
+			self::$result = $result;
+
+			return $result;
 		}
 
 		public static function getResult() {

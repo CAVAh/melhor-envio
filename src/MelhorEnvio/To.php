@@ -8,8 +8,6 @@
 
 	namespace MelhorEnvio;
 
-	require_once 'Endereco.php';
-	
 	class To extends Endereco {
 		public function __toArray(){
 			return get_object_vars($this);

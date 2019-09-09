@@ -7,8 +7,6 @@
 	 */
 
 	namespace MelhorEnvio;
-	
-	require_once 'Endereco.php';
 
 	class From extends Endereco {
 		public function __toArray(){

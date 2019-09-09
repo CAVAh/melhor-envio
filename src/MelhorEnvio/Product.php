@@ -9,15 +9,15 @@
 	namespace MelhorEnvio;
 
 	class Product {
-		public $id; // opcional
-		public $weight; // KG
-		public $weight_class; // KG
-		public $width; // CM
-		public $height; // CM
-		public $length; // CM
-		public $length_class; // CM
-		public $quantity; // opcional, padrão 1
-		public $insurance_value; // reais
+		private $id; // opcional
+		private $weight; // KG
+		private $weight_class; // KG
+		private $width; // CM
+		private $height; // CM
+		private $length; // CM
+		private $length_class; // CM
+		private $quantity; // opcional, padrão 1
+		private $insurance_value; // reais
 
 		/**
 		 * Product constructor.
@@ -168,85 +168,6 @@
 		 */
 		public function setInsuranceValue($insurance_value) {
 			$this->insurance_value = $insurance_value;
-		}
-
-		/**
-		 * Faz a conversão do peso para KG.
-		 */
-		public final function convertWeightInKG() {
-			$this->weight = self::convertWeightKG($this->weight, $this->weight_class);
-			$this->weight_class = 'kg';
-		}
-
-		/**
-		 * Faz a conversão das dimensões para CM.
-		 */
-		public final function convertLengthInCM() {
-			$this->width = ceil(self::convertLengthCM($this->width, $this->length_class));
-			$this->height = ceil(self::convertLengthCM($this->height, $this->length_class));
-			$this->length = ceil(self::convertLengthCM($this->length, $this->length_class));
-			$this->length_class = 'cm';
-		}
-
-		/**
-		 * Converte o peso para KG de acordo com a unidade atual.
-		 *
-		 * @param float|int  $productWeight      Peso do produto
-		 * @param string     $productWeightClass Unidade de peso do produto
-		 *
-		 * @return float|int Peso em KG
-		 */
-		private static function convertWeightKG($productWeight, $productWeightClass) {
-			$coversionRate = 1;
-
-			switch ($productWeightClass) {
-				case "kg":
-					$coversionRate = 1;
-					break;
-				case "g":
-					$coversionRate = 0.001;
-					break;
-				case "lb":
-					$coversionRate = 0.453592;
-					break;
-				case "oz":
-					$coversionRate = 0.0283495231;
-					break;
-				case "l":
-					$coversionRate = 1;
-					break;
-				case "ml":
-					$coversionRate = 0.001;
-					break;
-			}
-
-			return $productWeight * $coversionRate;
-		}
-
-		/**
-		 * Converte a dimensão (largura, altura e comprimento) para CM de acordo com a unidade atual.
-		 *
-		 * @param float|int  $productLength      Dimensão do produto
-		 * @param string     $productLengthClass Unidade de dimensão do produto
-		 *
-		 * @return float|int Dimensão em CM
-		 */
-		private static function convertLengthCM($productLength, $productLengthClass) {
-			$coversionRate = 1;
-
-			switch ($productLengthClass) {
-				case "in":
-					$coversionRate = 2.54;
-					break;
-				case "mm":
-					$coversionRate = 0.1;
-					break;
-				case "cm":
-					$coversionRate = 1;
-					break;
-			}
-
-			return $productLength * $coversionRate;
 		}
 
 		/**
