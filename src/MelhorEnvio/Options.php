@@ -9,7 +9,7 @@
 	namespace MelhorEnvio;
 
 	class Options {
-		private $companies; // Companias filtradas
+		private $companies; // Companias filtradas por exemplo: ['Correios']
 		private $insurance_value; // quando for calculado o frete com uma lista de produtos e o mesmo contendo seu respectivo valor segurado, não é necessário informar este campo
 		private $receipt; // Aviso de recebimento (AR)
 		private $own_hand; // Mão própria

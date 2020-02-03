@@ -57,7 +57,7 @@
 			$filter_company = !is_null($companies);
 
 			for ($i = 0; $i < $count; $i++) {
-				if (isset($result[$i]['error']) || $filter_company && !in_array($result[$i]['company']['id'], $options->getCompanies())) {
+				if (isset($result[$i]['error']) || $filter_company && !in_array($result[$i]['company']['name'], $options->getCompanies())) {
 					unset($result[$i]);
 				}
 			}
